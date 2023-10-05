@@ -33,84 +33,135 @@ async function run() {
 }
 //run().catch(console.dir);
 
-async function cxnDB(){
+async function cxnDB() {
 
-  try{
-    client.connect; 
-    const collection = client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
-    // const collection = client.db("papa").collection("dev-profiles");
-    const result = await collection.find().toArray();
-    //const result = await collection.findOne(); 
-    console.log("cxnDB result: ", result);
-    return result; 
+  try {
+    await client.connect().then(
+      client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection")
+    );
   }
-  catch(e){
-      console.log(e)
+  catch (e) {
+    console.log(e)
   }
-  finally{
-    client.close; 
+  finally {
+    client.close;
   }
 }
 
 
 app.get('/', async (req, res) => {
 
-  let result = await cxnDB().catch(console.error); 
-
+  client.connect;
+  let mongoResult = await client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
   // console.log("get/: ", result);
-
+  console.log(mongoResult);
   //'res.send("here for a second: " + result[0].name)
-  res.render('index', { 
-    profileDataId : result[0]._id, 
-    profileDataName : result[0].name 
-    })
+  res.render('index', {
+    profileData: mongoResult
+  })
 })
 
 app.post('/updateProfile', async (req, res) => {
 
-  client.connect; 
-  const collection = client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
+  try {
+    //get the new dev name
+    console.log("body: ", req.body)
+    console.log("user Name: ", req.body.devName)
 
-  //get the new dev name
-  console.log("body: ", req.body)
-  console.log("user Name: ", req.body.devName)
-  
-  // put it into mongo
-  let result = await collection.findOneAndUpdate( 
-    { _id: new ObjectId( req.body.devId)},
-    {$set: {name: req.body.devName }}); 
+    client.connect;
+    const collection = client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
 
-  res.redirect("/"); 
+    // put it into mongo
+    let result = await collection.findOneAndUpdate(
+      { _id: new ObjectId(req.body.devId) },
+      { $set: { name: req.body.devName } })
+      .then(result => {
+        console.log(result);
+        res.redirect('/');
+      })
+      .catch(error => console.error(error))
 
-  // res.send("check oyur server console ")
-  // head back to our page 
 
-  //  res.render('index', {  peopleData : result })
+  }
+  finally {
+    //client.close()
+  }
 })
 
+app.post('/insertProfile', async (req, res) => {
+
+  try {
+    //get the new dev name
+    console.log("body: ", req.body)
+    console.log("user Name: ", req.body.devName)
+
+    client.connect;
+    const collection = client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
+
+    // put it into mongo
+    let result = await collection.insertOne(
+      { name: req.body.newDevName })
+      .then(result => {
+        console.log(result);
+        res.redirect('/');
+      })
+      .catch(error => console.error(error))
+
+
+  }
+  finally {
+    //client.close()
+  }
+})
+
+app.post('/deleteProfile', async (req, res) => {
+
+  try {
+    //get the new dev name
+    console.log("body: ", req.body)
+    console.log("user Name: ", req.body.devName)
+
+    client.connect;
+    const collection = client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
+
+    // put it into mongo
+    let result = await collection.findOneAndDelete(
+      { _id: new ObjectId(req.body.devId) })
+      .then(result => {
+        console.log(result);
+        res.redirect('/');
+      })
+      .catch(error => console.error(error))
+
+
+  }
+  finally {
+    //client.close()
+  }
+})
 
 let myVariableServer = 'soft coded server data';
 
 app.get('/jaiden', function (req, res) {
-  res.render('index', 
-  {
-    'myVariableClient' : myVariableServer 
-  }
+  res.render('index',
+    {
+      'myVariableClient': myVariableServer
+    }
   );
 })
 
 app.post('/postClientData', function (req, res) {
-  
-   console.log("body: ", req.body)
-   console.log("user Name: ", req.body.userName)
+
+  console.log("body: ", req.body)
+  console.log("user Name: ", req.body.userName)
   //  console.log("params: ", req.params['userName']);
-  
+
   // myVariableServer = req.body.userName;
 
-  res.render('index', 
-  {
-    'myVariableClient' : req.body.userName 
-  }
+  res.render('index',
+    {
+      'myVariableClient': req.body.userName
+    }
   );
 })
 
@@ -127,4 +178,4 @@ app.post('/postClientData', function (req, res) {
 
 // app.listen(3000)
 
-app.listen(port, () => console.log(`Server is running...on ${ port }` ));
+app.listen(port, () => console.log(`Server is running...on ${port}`));
