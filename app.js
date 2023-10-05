@@ -59,14 +59,39 @@ app.get('/', async (req, res) => {
 
   // console.log("get/: ", result);
 
-  res.send("here for a second: " + result[0].name)
-  //res.render('index', {  peopleData : result })
+  //'res.send("here for a second: " + result[0].name)
+  res.render('index', { 
+    profileDataId : result[0]._id, 
+    profileDataName : result[0].name 
+    })
+})
+
+app.post('/updateProfile', async (req, res) => {
+
+  client.connect; 
+  const collection = client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
+
+  //get the new dev name
+  console.log("body: ", req.body)
+  console.log("user Name: ", req.body.devName)
+  
+  // put it into mongo
+  let result = await collection.findOneAndUpdate( 
+    { _id: new ObjectId( req.body.devId)},
+    {$set: {name: req.body.devName }}); 
+
+  res.redirect("/"); 
+
+  // res.send("check oyur server console ")
+  // head back to our page 
+
+  //  res.render('index', {  peopleData : result })
 })
 
 
 let myVariableServer = 'soft coded server data';
 
-app.get('/barry', function (req, res) {
+app.get('/jaiden', function (req, res) {
   res.render('index', 
   {
     'myVariableClient' : myVariableServer 
