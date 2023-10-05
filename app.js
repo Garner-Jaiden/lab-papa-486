@@ -52,7 +52,7 @@ async function cxnDB() {
 app.get('/', async (req, res) => {
 
   client.connect;
-  let mongoResult = await client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection");
+  let mongoResult = await client.db("jaidens-cool-papa-database").collection("jaidens-cool-papa-collection").find().toArray();
   // console.log("get/: ", result);
   console.log(mongoResult);
   //'res.send("here for a second: " + result[0].name)
